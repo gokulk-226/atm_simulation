@@ -5,8 +5,8 @@ public class ATMDatabaseSimulator {
 
     // Update DB details here
     static final String DB_URL = "jdbc:mysql://localhost:3306/atm_db";
-    static final String USER = "root";         // your MySQL username
-    static final String PASS = "GokulMysql@2004";     // your MySQL password
+    static final String USER = "root";        
+    static final String PASS = "GokulMysql@2004";
 
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
@@ -16,13 +16,13 @@ public class ATMDatabaseSimulator {
 
             System.out.print("Enter your account number: ");
             int accNo = sc.nextInt();
-            sc.nextLine(); // clear buffer
+            sc.nextLine(); 
 
             System.out.print("Enter your PIN: ");
             String pin = sc.nextLine();
 
             if (!verifyLogin(conn, accNo, pin)) {
-                System.out.println("❌ Invalid account number or PIN.");
+                System.out.println("Invalid account number or PIN.");
                 return;
             }
 
@@ -47,7 +47,7 @@ public class ATMDatabaseSimulator {
                         withdraw(conn, accNo, sc);
                         break;
                     case 4:
-                        System.out.println("👋 Thank you for using ATM.");
+                        System.out.println("Thank you for using ATM.");
                         break;
                     default:
                         System.out.println("Invalid option. Try again.");
@@ -56,7 +56,7 @@ public class ATMDatabaseSimulator {
             } while (choice != 4);
 
         } catch (SQLException e) {
-            System.out.println("❌ Database error.");
+            System.out.println("Database error.");
             e.printStackTrace();
         }
     }
@@ -67,7 +67,7 @@ public class ATMDatabaseSimulator {
             stmt.setInt(1, accNo);
             stmt.setString(2, pin);
             ResultSet rs = stmt.executeQuery();
-            return rs.next(); // login successful if user exists
+            return rs.next();
         }
     }
 
@@ -78,7 +78,7 @@ public class ATMDatabaseSimulator {
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
                 double balance = rs.getDouble("balance");
-                System.out.printf("💰 Current balance: ₹%.2f\n", balance);
+                System.out.printf("Current balance: ₹%.2f\n", balance);
             }
         }
     }
@@ -87,7 +87,7 @@ public class ATMDatabaseSimulator {
         System.out.print("Enter amount to deposit: ₹");
         double amount = sc.nextDouble();
         if (amount <= 0) {
-            System.out.println("❌ Invalid deposit amount.");
+            System.out.println("Invalid deposit amount.");
             return;
         }
 
@@ -97,7 +97,7 @@ public class ATMDatabaseSimulator {
             stmt.setInt(2, accNo);
             int rows = stmt.executeUpdate();
             if (rows > 0) {
-                System.out.println("✅ Deposit successful.");
+                System.out.println("Deposit successful.");
             }
         }
     }
@@ -106,11 +106,11 @@ public class ATMDatabaseSimulator {
         System.out.print("Enter amount to withdraw: ₹");
         double amount = sc.nextDouble();
         if (amount <= 0) {
-            System.out.println("❌ Invalid withdrawal amount.");
+            System.out.println("Invalid withdrawal amount.");
             return;
         }
 
-        // Check current balance first
+
         String checkSql = "SELECT balance FROM users WHERE account_no = ?";
         try (PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
             checkStmt.setInt(1, accNo);
@@ -118,20 +118,20 @@ public class ATMDatabaseSimulator {
             if (rs.next()) {
                 double currentBalance = rs.getDouble("balance");
                 if (currentBalance < amount) {
-                    System.out.println("❌ Insufficient balance.");
+                    System.out.println("Insufficient balance.");
                     return;
                 }
             }
         }
 
-        // Deduct the balance
+
         String withdrawSql = "UPDATE users SET balance = balance - ? WHERE account_no = ?";
         try (PreparedStatement withdrawStmt = conn.prepareStatement(withdrawSql)) {
             withdrawStmt.setDouble(1, amount);
             withdrawStmt.setInt(2, accNo);
             int rows = withdrawStmt.executeUpdate();
             if (rows > 0) {
-                System.out.println("✅ Withdrawal successful.");
+                System.out.println("Withdrawal successful.");
             }
         }
     }
